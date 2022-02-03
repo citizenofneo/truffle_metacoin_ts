@@ -1,6 +1,7 @@
 const fs = require('fs')
 const { exec } = require('child_process');
 
+cleanDirs()
 setWatcher('./contracts', 'truffle compile && npm run generate-types')
 
 function setWatcher(watchedDir, cmd) {
@@ -25,6 +26,16 @@ function setWatcher(watchedDir, cmd) {
         }
     })
     useCmd('pre')
+}
+
+function cleanDirs(dirs = ['./build', './types']) {
+    for (let dirName of dirs) {
+        if (fs.existsSync(dirName)) {
+            console.log('Clean', dirName)
+            fs.rmSync(dirName, { recursive: true, force: true })
+        }
+    }
+
 }
 
 function debounce(f, ms) {

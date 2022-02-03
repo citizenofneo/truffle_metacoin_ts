@@ -1,41 +1,35 @@
+import { GasERC20Instance } from "../types/truffle-contracts";
+
 const Crowdsale = artifacts.require("Crowdsale");
 const GasERC20 = artifacts.require("GasERC20");
 
-contract('MetaCoin', (accounts: string[]) => {
-  it('should put 10000 MetaCoin in the first account', async () => {
-    const CrowdsaleInstance = await Crowdsale.deployed();
-    const icoToken = await GasERC20.at(await CrowdsaleInstance.getTokenAddress())
+contract('Sample tests Crowdsale', (accounts: string[]) => {
 
-    assert.equal(Number(await icoToken.balanceOf(CrowdsaleInstance.address)), 10000, "10000 wasn't in the Crowdsale");
+  it('should put 3490 Tokens in the first account', async () => {
+    const { CrowdsaleInstance, icoToken } = await getIcoAndToken()
+    assert.equal(await getTokenBalance(icoToken, CrowdsaleInstance.address), 3490, "3490 wasn't in the Crowdsale");
   });
-  // it('should call a function that depends on a linked library', async () => {
-  //   const metaCoinInstance = await MetaCoin.deployed();
-  //   const metaCoinBalance = (await metaCoinInstance.getBalance(accounts[0])).toNumber();
-  //   const metaCoinEthBalance = (await metaCoinInstance.getBalanceInEth(accounts[0])).toNumber();
 
-  //   assert.equal(metaCoinEthBalance, 2 * metaCoinBalance, 'Library function returned unexpected function, linkage may be broken');
-  // });
-  // it('should send coin correctly', async () => {
-  //   const metaCoinInstance = await MetaCoin.deployed();
+  it('should buyed 10 Tokens for 4 ETH in the second account', async () => {
+    const { CrowdsaleInstance, icoToken } = await getIcoAndToken()
+    const buyer1 = accounts[1]
+    const buyer2 = accounts[2]
 
-  //   // Setup 2 accounts.
-  //   const accountOne = accounts[0];
-  //   const accountTwo = accounts[1];
+    await CrowdsaleInstance.sendTransaction({ value: 10 * 10 ** 18, from: buyer1 })
+    assert.equal(await getTokenBalance(icoToken, buyer1), 24.5, "24.5 wasn't in the Crowdsale")
 
-  //   // Get initial balances of first and second account.
-  //   const accountOneStartingBalance = (await metaCoinInstance.getBalance(accountOne)).toNumber();
-  //   const accountTwoStartingBalance = (await metaCoinInstance.getBalance(accountTwo)).toNumber();
-
-  //   // Make transaction from first account to second.
-  //   const amount = 10;
-  //   await metaCoinInstance.sendCoin(accountTwo, amount, { from: accountOne });
-
-  //   // Get balances of first and second account after the transactions.
-  //   const accountOneEndingBalance = (await metaCoinInstance.getBalance(accountOne)).toNumber();
-  //   const accountTwoEndingBalance = (await metaCoinInstance.getBalance(accountTwo)).toNumber();
-
-
-  //   assert.equal(accountOneEndingBalance, accountOneStartingBalance - amount, "Amount wasn't correctly taken from the sender");
-  //   assert.equal(accountTwoEndingBalance, accountTwoStartingBalance + amount, "Amount wasn't correctly sent to the receiver");
-  // });
+    await CrowdsaleInstance.sendTransaction({ value: 15 * 10 ** 18, from: buyer2 })
+    assert.equal(await getTokenBalance(icoToken, buyer2), 36.75, "36.75 wasn't in the Crowdsale")
+  });
 });
+
+const getIcoAndToken = async () => {
+  const CrowdsaleInstance = await Crowdsale.deployed();
+  const icoToken = await GasERC20.at(await CrowdsaleInstance.getTokenAddress())
+  return {
+    CrowdsaleInstance,
+    icoToken
+  }
+}
+
+const getTokenBalance = async (token: GasERC20Instance, address: string) => Number(await token.balanceOf(address)) / 10 ** Number(await token.decimals())

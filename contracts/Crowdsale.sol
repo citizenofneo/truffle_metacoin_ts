@@ -9,7 +9,7 @@ contract Crowdsale {
     uint sat = 1e18;
 
     // *** Config ***
-    uint startFst = 1599753600;
+    uint startFst = block.timestamp;
     uint periodFst = 1 days;
     uint periodScd = 1 days;
     uint percentSell = 35;

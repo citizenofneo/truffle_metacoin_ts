@@ -7,17 +7,18 @@ module.exports = (artifacts: Truffle.Artifacts, web3: Web3) => {
     accounts: string[]
   ) => {
     const SafeMath = artifacts.require("SafeMath");
-    // const Ownable = artifacts.require("Ownable");
-    // const ConvertLib = artifacts.require("ConvertLib");
-    // const MetaCoin = artifacts.require("MetaCoin");
+    const Crowdsale = artifacts.require("Crowdsale");
+    const GasERC20 = artifacts.require("GasERC20");
+   
+    await deployer.deploy(SafeMath);
+    await deployer.link(SafeMath, [GasERC20, Crowdsale])
 
-    // await deployer.deploy(ConvertLib);
-    // await deployer.link(ConvertLib, MetaCoin);
-    // await deployer.deploy(MetaCoin);
+    await deployer.deploy(GasERC20);
+    await deployer.link(GasERC20, Crowdsale)
 
-    // const metaCoin = await MetaCoin.deployed();
-    // console.log(
-    //   `Metacoin deployed at ${metaCoin.address} in network: ${network}.`
-    // );
+    await deployer.deploy(Crowdsale);
+    console.log(
+      `Crowdsale deployed at ${Crowdsale.address} in network: ${network}.`
+    );
   };
 };

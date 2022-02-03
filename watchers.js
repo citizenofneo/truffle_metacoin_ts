@@ -5,22 +5,34 @@ setWatcher('./contracts', 'truffle compile && npm run generate-types')
 
 function setWatcher(watchedDir, cmd) {
     console.log('[Start watch]:', ...arguments)
-    const useCmd = () => exec(cmd, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`error: ${watchedDir} ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.error(`stderr: ${watchedDir} ${stderr}`);
-            return;
-        }
-        console.log(`stdout:\n${stdout}`);
-    });
+    const useCmd = debounce(filename => {
+        console.log(`${filename} file Changed`)
+        exec(cmd, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`error: ${watchedDir} ${error.message}`);
+                return;
+            }
+            if (stderr) {
+                console.error(`stderr: ${watchedDir} ${stderr}`);
+                return;
+            }
+            console.log(`stdout:\n${stdout}`);
+        })
+    }, 1000)
     fs.watch(watchedDir, (event, filename) => {
         if (filename) {
-            console.log(`${filename} file Changed`)
-            useCmd()
+            useCmd(filename)
         }
     })
-    useCmd()
+    useCmd('pre')
+}
+
+function debounce(f, ms) {
+    let isCooldown = false;
+    return function () {
+        if (isCooldown) return;
+        f.apply(this, arguments);
+        isCooldown = true;
+        setTimeout(() => isCooldown = false, ms);
+    };
 }

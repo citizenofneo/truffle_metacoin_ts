@@ -1,7 +1,8 @@
 {
   "scripts": {
     "generate-types": "npx typechain --target=truffle-v5 'build/contracts/*.json'",
-    "postinstall": "npx truffle compile && npm run generate-types"
+    "postinstall": "npx truffle compile && npm run generate-types",
+    "sol-w": "node watchers"
   },
   "devDependencies": {
     "@typechain/truffle-v5": "^7.0.0",
